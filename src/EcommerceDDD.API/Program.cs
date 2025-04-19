@@ -1,4 +1,5 @@
 using EcommerceDDD.Application.Services.Auth;
+using EcommerceDDD.Application.Services.Orders;
 using EcommerceDDD.Application.Services.Products;
 using EcommerceDDD.Domain.Entities.Products;
 using EcommerceDDD.Domain.Entities.Users;
@@ -48,6 +49,7 @@ builder.Services.AddScoped<IRepository<User>, UserRepository>();
 builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
+builder.Services.AddScoped<IOrderService, OrderService>();
 
 // Configure Swagger
 builder.Services.AddEndpointsApiExplorer();

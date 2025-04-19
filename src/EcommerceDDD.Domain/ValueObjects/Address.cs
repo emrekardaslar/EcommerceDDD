@@ -2,13 +2,13 @@ namespace EcommerceDDD.Domain.ValueObjects;
 
 public record Address
 {
-    public string Street { get; private init; }
-    public string City { get; private init; }
-    public string State { get; private init; }
-    public string Country { get; private init; }
-    public string ZipCode { get; private init; }
+    public string Street { get; init; }
+    public string City { get; init; }
+    public string State { get; init; }
+    public string Country { get; init; }
+    public string ZipCode { get; init; }
 
-    private Address() { } // For EF Core
+    public Address() { } // For JSON deserialization
 
     public Address(string street, string city, string state, string country, string zipCode)
     {
