@@ -1,5 +1,5 @@
+using ECommerceAPI.Application.Services.Products;
 using ECommerceAPI.Domain.Entities.Products;
-using ECommerceAPI.Domain.Repositories;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ECommerceAPI.API.Controllers;
@@ -8,87 +8,95 @@ namespace ECommerceAPI.API.Controllers;
 [Route("api/[controller]")]
 public class CategoriesController : ControllerBase
 {
-    private readonly IRepository<Category> _categoryRepository;
+    private readonly ICategoryService _categoryService;
 
-    public CategoriesController(IRepository<Category> categoryRepository)
+    public CategoriesController(ICategoryService categoryService)
     {
-        _categoryRepository = categoryRepository;
+        _categoryService = categoryService;
     }
 
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<Category>>> GetAll()
+    public async Task<IActionResult> GetAll()
     {
-        var categories = await _categoryRepository.GetAllAsync();
+        var categories = await _categoryService.GetAllAsync();
         return Ok(categories);
     }
 
     [HttpGet("{id}")]
-    public async Task<ActionResult<Category>> GetById(Guid id)
+    public async Task<IActionResult> GetById(Guid id)
     {
-        var category = await _categoryRepository.GetByIdAsync(id);
-        if (category == null)
+        try
+        {
+            var category = await _categoryService.GetByIdAsync(id);
+            return Ok(category);
+        }
+        catch (KeyNotFoundException)
+        {
             return NotFound();
-
-        return Ok(category);
+        }
     }
 
     [HttpPost]
-    public async Task<ActionResult<Category>> Create([FromBody] CreateCategoryRequest request)
+    public async Task<IActionResult> Create([FromBody] CreateCategoryRequest request)
     {
-        var category = new Category(request.Name, request.Description);
-        await _categoryRepository.AddAsync(category);
-
+        var category = await _categoryService.CreateCategoryAsync(request.Name, request.Description);
         return CreatedAtAction(nameof(GetById), new { id = category.Id }, category);
     }
 
     [HttpPut("{id}")]
     public async Task<IActionResult> Update(Guid id, [FromBody] CreateCategoryRequest request)
     {
-        var category = await _categoryRepository.GetByIdAsync(id);
-        if (category == null)
+        try
+        {
+            await _categoryService.UpdateCategoryAsync(id, request.Name, request.Description);
+            return NoContent();
+        }
+        catch (KeyNotFoundException)
+        {
             return NotFound();
-
-        category.UpdateDetails(request.Name, request.Description);
-        await _categoryRepository.UpdateAsync(category);
-
-        return NoContent();
+        }
     }
 
     [HttpDelete("{id}")]
     public async Task<IActionResult> Delete(Guid id)
     {
-        var category = await _categoryRepository.GetByIdAsync(id);
-        if (category == null)
+        try
+        {
+            await _categoryService.DeleteCategoryAsync(id);
+            return NoContent();
+        }
+        catch (KeyNotFoundException)
+        {
             return NotFound();
-
-        await _categoryRepository.DeleteAsync(category);
-        return NoContent();
+        }
     }
 
     [HttpPost("{id}/activate")]
     public async Task<IActionResult> Activate(Guid id)
     {
-        var category = await _categoryRepository.GetByIdAsync(id);
-        if (category == null)
+        try
+        {
+            await _categoryService.ActivateCategoryAsync(id);
+            return NoContent();
+        }
+        catch (KeyNotFoundException)
+        {
             return NotFound();
-
-        category.Activate();
-        await _categoryRepository.UpdateAsync(category);
-
-        return NoContent();
+        }
     }
 
     [HttpPost("{id}/deactivate")]
     public async Task<IActionResult> Deactivate(Guid id)
     {
-        var category = await _categoryRepository.GetByIdAsync(id);
-        if (category == null)
+        try
+        {
+            await _categoryService.DeactivateCategoryAsync(id);
+            return NoContent();
+        }
+        catch (KeyNotFoundException)
+        {
             return NotFound();
-
-        category.Deactivate();
-        await _categoryRepository.UpdateAsync(category);
-
-        return NoContent();
+        }
     }
 }
 

@@ -47,6 +47,7 @@ builder.Services.AddScoped<IRepository<User>, UserRepository>();
 // Register services
 builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<ICategoryService, CategoryService>();
 
 // Configure Swagger
 builder.Services.AddEndpointsApiExplorer();
