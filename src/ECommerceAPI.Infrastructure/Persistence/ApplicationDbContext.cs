@@ -1,6 +1,7 @@
 using ECommerceAPI.Domain.Entities.Customers;
 using ECommerceAPI.Domain.Entities.Orders;
 using ECommerceAPI.Domain.Entities.Products;
+using ECommerceAPI.Domain.Entities.Users;
 using Microsoft.EntityFrameworkCore;
 
 namespace ECommerceAPI.Infrastructure.Persistence;
@@ -17,6 +18,7 @@ public class ApplicationDbContext : DbContext
     public DbSet<Customer> Customers { get; set; }
     public DbSet<Order> Orders { get; set; }
     public DbSet<OrderItem> OrderItems { get; set; }
+    public DbSet<User> Users { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
