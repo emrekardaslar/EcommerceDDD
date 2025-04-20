@@ -43,9 +43,18 @@ public abstract class BaseRepository<T> : IRepository<T> where T : BaseEntity
 
     public async Task UpdateAsync(T entity)
     {
-        _dbSet.Update(entity);
-        await _context.SaveChangesAsync();
+        try
+        {
+            _dbSet.Update(entity);
+            await _context.SaveChangesAsync();
+        }
+        catch (DbUpdateConcurrencyException ex)
+        {
+            // Log or handle the concurrency conflict
+            throw new InvalidOperationException("The entity you're trying to update has been modified or deleted by another process.", ex);
+        }
     }
+
 
     public async Task DeleteAsync(T entity)
     {

@@ -9,15 +9,18 @@ public class OrderService : IOrderService
     private readonly IOrderRepository _orderRepository;
     private readonly IProductRepository _productRepository;
     private readonly ICustomerRepository _customerRepository;
+    private readonly IOrderItemRepository _orderItemRepository;
 
     public OrderService(
         IOrderRepository orderRepository,
         IProductRepository productRepository,
-        ICustomerRepository customerRepository)
+        ICustomerRepository customerRepository,
+        IOrderItemRepository orderItemRepository)
     {
         _orderRepository = orderRepository;
         _productRepository = productRepository;
         _customerRepository = customerRepository;
+        _orderItemRepository = orderItemRepository;
     }
 
     public async Task<Order?> GetOrderByIdAsync(Guid id)
@@ -61,12 +64,21 @@ public class OrderService : IOrderService
 
         var unitPrice = new Money(product.Price);
         var orderItem = new OrderItem(orderId, productId, quantity, unitPrice);
+
+        // Save order item explicitly so EF tracks it properly
+        await _orderItemRepository.AddAsync(orderItem);
+
+        // Add it to the order aggregate root
         order.AddItem(orderItem);
 
+        // Update product stock
         product.UpdateStock(product.StockQuantity - quantity);
         await _productRepository.UpdateAsync(product);
+
+        // Update order (e.g. total amount)
         await _orderRepository.UpdateAsync(order);
     }
+
 
     public async Task RemoveItemFromOrderAsync(Guid orderId, Guid orderItemId)
     {
